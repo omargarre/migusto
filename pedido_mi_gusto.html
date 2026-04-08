@@ -1,0 +1,717 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>Pedido Mi Gusto</title>
+
+  <style>
+    * {
+      box-sizing: border-box;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    :root {
+      --bg: #090909;
+      --panel: rgba(20, 20, 20, 0.9);
+      --panel-2: rgba(34, 34, 34, 0.95);
+      --line: #6b5a17;
+      --gold: #d8b318;
+      --gold-soft: #f1d66d;
+      --text: #f5f5f5;
+      --muted: #d0d0d0;
+      --green: #22c55e;
+      --blue: #3b82f6;
+      --orange: #f59e0b;
+      --violet: #a855f7;
+      --danger: #dc2626;
+    }
+
+    html, body {
+      margin: 0;
+      padding: 0;
+      font-family: Arial, Helvetica, sans-serif;
+      color: var(--text);
+      background:
+        linear-gradient(rgba(0,0,0,.78), rgba(0,0,0,.78)),
+        radial-gradient(circle at top, rgba(216,179,24,.12), transparent 35%),
+        radial-gradient(circle at bottom, rgba(216,179,24,.08), transparent 28%),
+        #080808;
+    }
+
+    body {
+      padding: 10px;
+    }
+
+    .container {
+      width: 100%;
+      max-width: 1300px;
+      margin: 0 auto;
+    }
+
+    .brand {
+      text-align: center;
+      margin-bottom: 14px;
+    }
+
+    .brand img {
+      width: 140px;
+      max-width: 70%;
+      display: block;
+      margin: 0 auto 8px;
+      filter: drop-shadow(0 2px 10px rgba(0,0,0,.45));
+      border-radius: 12px;
+    }
+
+    h1 {
+      margin: 0 0 4px 0;
+      text-align: center;
+      font-size: 1.5rem;
+      color: var(--gold-soft);
+    }
+
+    .subtitulo {
+      text-align: center;
+      color: var(--muted);
+      margin: 0 0 14px 0;
+      font-size: .98rem;
+    }
+
+    .top-actions,
+    .detail-actions,
+    .extra-actions {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-bottom: 12px;
+    }
+
+    button {
+      border: 1px solid transparent;
+      border-radius: 12px;
+      padding: 12px 14px;
+      font-size: 1rem;
+      font-weight: bold;
+      cursor: pointer;
+      touch-action: manipulation;
+      transition: transform .08s ease, opacity .2s ease;
+    }
+
+    button:active {
+      transform: scale(.98);
+    }
+
+    .btn-primary {
+      background: var(--green);
+      color: #101010;
+    }
+
+    .btn-secondary {
+      background: var(--blue);
+      color: #fff;
+    }
+
+    .btn-neutral {
+      background: #2d2d2d;
+      color: #fff;
+      border-color: var(--line);
+    }
+
+    .btn-copy {
+      background: var(--orange);
+      color: #111;
+      display: none;
+    }
+
+    .btn-copy-detail {
+      background: var(--violet);
+      color: #fff;
+      display: none;
+    }
+
+    .table-wrap {
+      overflow-x: auto;
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      padding: 8px;
+      margin-bottom: 14px;
+      width: 100%;
+      box-shadow: 0 10px 30px rgba(0,0,0,.2);
+    }
+
+    table {
+      width: 100%;
+      min-width: 900px;
+      border-collapse: collapse;
+    }
+
+    th, td {
+      border: 1px solid rgba(216, 179, 24, 0.25);
+      padding: 8px 6px;
+      text-align: center;
+    }
+
+    th {
+      background: #111;
+      position: sticky;
+      top: 0;
+      z-index: 1;
+      font-size: 0.95rem;
+      color: var(--gold-soft);
+    }
+
+    td:first-child,
+    th:first-child {
+      text-align: left;
+      min-width: 180px;
+      max-width: 190px;
+      white-space: normal;
+      word-break: break-word;
+      position: sticky;
+      left: 0;
+      background: #151515;
+      z-index: 2;
+    }
+
+    .variedad-cell {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .variedad-nombre {
+      font-weight: bold;
+      color: #fff;
+    }
+
+    .variedad-cat {
+      display: inline-block;
+      width: fit-content;
+      font-size: .76rem;
+      color: #111;
+      background: var(--gold-soft);
+      border-radius: 999px;
+      padding: 2px 8px;
+      font-weight: bold;
+    }
+
+    .persona-header {
+      min-width: 110px;
+    }
+
+    .persona-header-wrap {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+    }
+
+    .persona-nombre {
+      display: inline-block;
+      max-width: 70px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .btn-delete-person {
+      background: var(--danger);
+      color: white;
+      width: 24px;
+      height: 24px;
+      padding: 0;
+      border-radius: 6px;
+      font-size: 0.9rem;
+      line-height: 1;
+      flex-shrink: 0;
+    }
+
+    .counter {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+    }
+
+    .counter button {
+      width: 38px;
+      height: 38px;
+      padding: 0;
+      font-size: 1.2rem;
+      border-radius: 8px;
+      background: #2a2a2a;
+      color: #fff;
+      border-color: var(--line);
+      flex-shrink: 0;
+      user-select: none;
+      -webkit-user-select: none;
+      touch-action: manipulation;
+    }
+
+    .counter span {
+      min-width: 24px;
+      display: inline-block;
+      font-size: 1rem;
+      font-weight: bold;
+      color: var(--gold-soft);
+    }
+
+    .result-box {
+      background: var(--panel-2);
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      padding: 12px;
+      margin-bottom: 14px;
+    }
+
+    .result-box h2 {
+      margin: 0 0 10px 0;
+      font-size: 1.08rem;
+      color: var(--gold-soft);
+    }
+
+    .total-box {
+      font-size: 1.1rem;
+      font-weight: bold;
+      margin-bottom: 10px;
+      color: var(--gold-soft);
+    }
+
+    .hint {
+      font-size: 0.92rem;
+      color: var(--muted);
+      margin-bottom: 10px;
+    }
+
+    textarea {
+      width: 100%;
+      min-height: 230px;
+      border: 1px solid rgba(216, 179, 24, 0.3);
+      border-radius: 10px;
+      padding: 12px;
+      font-size: 1rem;
+      resize: vertical;
+      background: #f9fafb;
+      color: #111827;
+    }
+
+    .resumen-rapido {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(150px, 1fr));
+      gap: 10px;
+      margin-bottom: 14px;
+    }
+
+    .card {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      padding: 12px;
+      text-align: center;
+    }
+
+    .card .etq {
+      font-size: .88rem;
+      color: var(--muted);
+      margin-bottom: 4px;
+    }
+
+    .card .val {
+      font-size: 1.2rem;
+      font-weight: bold;
+      color: var(--gold-soft);
+    }
+
+    @media (max-width: 700px) {
+      body {
+        padding: 8px;
+      }
+
+      h1 {
+        font-size: 1.25rem;
+      }
+
+      .subtitulo {
+        font-size: .9rem;
+      }
+
+      .top-actions,
+      .detail-actions,
+      .extra-actions {
+        flex-direction: column;
+      }
+
+      .top-actions button,
+      .detail-actions button,
+      .extra-actions button {
+        width: 100%;
+      }
+
+      td:first-child,
+      th:first-child {
+        min-width: 125px;
+        max-width: 130px;
+      }
+
+      .counter button {
+        width: 40px;
+        height: 40px;
+        font-size: 1.25rem;
+      }
+
+      textarea {
+        min-height: 260px;
+      }
+
+      .persona-nombre {
+        max-width: 56px;
+      }
+
+      .resumen-rapido {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="brand">
+      <img src="migustooficial_logo.jpg" alt="Mi Gusto" />
+      <h1>Pedido Mi Gusto</h1>
+      <p class="subtitulo">Armá el pedido entre varias personas y copiá el resumen listo para mandar.</p>
+    </div>
+
+    <div class="resumen-rapido">
+      <div class="card">
+        <div class="etq">Personas</div>
+        <div class="val" id="cardPersonas">2</div>
+      </div>
+      <div class="card">
+        <div class="etq">Variedades</div>
+        <div class="val" id="cardVariedades">21</div>
+      </div>
+      <div class="card">
+        <div class="etq">Total actual</div>
+        <div class="val" id="cardTotal">0</div>
+      </div>
+    </div>
+
+    <div class="top-actions">
+      <button class="btn-primary" onclick="agregarPersona()">+ Agregar persona</button>
+      <button class="btn-secondary" onclick="generarPedido()">Generar pedido</button>
+      <button class="btn-neutral" onclick="limpiarTodo()">Limpiar todo</button>
+      <button class="btn-copy" id="btnCopiarWhatsapp" onclick="copiarPedidoWhatsapp()">Copiar pedido para WhatsApp Mi Gusto</button>
+    </div>
+
+    <div class="table-wrap">
+      <table id="tabla">
+        <thead>
+          <tr id="header">
+            <th>Variedad</th>
+          </tr>
+        </thead>
+        <tbody id="body"></tbody>
+      </table>
+    </div>
+
+    <div class="result-box">
+      <h2>Pedido para mandar</h2>
+      <div class="total-box" id="totalVisible"></div>
+      <div class="hint">Este texto sale sin nombres, listo para copiar y enviar al local.</div>
+      <textarea id="resultadoWhatsapp" placeholder="Acá va a aparecer el pedido para enviar..."></textarea>
+    </div>
+
+    <div class="result-box">
+      <h2>Detalle interno con nombres</h2>
+      <div class="hint">Esto te sirve para revisar quién pidió cada cosa antes de mandarlo.</div>
+
+      <div class="detail-actions">
+        <button class="btn-copy-detail" id="btnCopiarDetalle" onclick="copiarDetalleConNombres()">Copiar detalle con nombres</button>
+      </div>
+
+      <textarea id="resultadoDetalle" placeholder="Acá va a aparecer el detalle con nombres..."></textarea>
+    </div>
+  </div>
+
+  <script>
+    const variedades = [
+      { nombre: "Big Burger", categoria: "Carne" },
+      { nombre: "Vacio y Provoleta", categoria: "Carne" },
+      { nombre: "Burger", categoria: "Carne" },
+      { nombre: "American Chicken", categoria: "Pollo" },
+      { nombre: "Carne Picante", categoria: "Carne" },
+      { nombre: "Queso y Cebolla", categoria: "Queso" },
+      { nombre: "Roquefort con Jamon", categoria: "Queso" },
+      { nombre: "Mexican Pibil Pork", categoria: "Carne" },
+      { nombre: "Matambre a la pizza", categoria: "Carne" },
+      { nombre: "Jamon y Queso", categoria: "Jamon/Queso" },
+      { nombre: "Jamon, Huevo y Queso", categoria: "Jamon/Queso" },
+      { nombre: "Carne al Cuchillo", categoria: "Carne" },
+      { nombre: "Carne Suave", categoria: "Carne" },
+      { nombre: "Carne con Aceituna", categoria: "Carne" },
+      { nombre: "Pollo", categoria: "Pollo" },
+      { nombre: "Pollo al Champignon", categoria: "Pollo" },
+      { nombre: "Verdura", categoria: "Verdura" },
+      { nombre: "Panceta y Ciruela", categoria: "Dulce/Salado" },
+      { nombre: "Cuatro Quesos", categoria: "Queso" },
+      { nombre: "Choclo", categoria: "Especial" },
+      { nombre: "Calabaza", categoria: "Verdura" }
+    ];
+
+    let personas = ["Garre", "Claudia"];
+    let cantidades = {};
+
+    function inicializarDatos() {
+      cantidades = {};
+      for (let i = 0; i < variedades.length; i++) {
+        cantidades[i] = {};
+        for (let j = 0; j < personas.length; j++) {
+          cantidades[i][j] = 0;
+        }
+      }
+      actualizarResumenRapido();
+    }
+
+    function reconstruirCantidadesConPersonas(newPersonas) {
+      const nuevasCantidades = {};
+
+      for (let i = 0; i < variedades.length; i++) {
+        nuevasCantidades[i] = {};
+        for (let j = 0; j < newPersonas.length; j++) {
+          const nombre = newPersonas[j];
+          const indiceViejo = personas.indexOf(nombre);
+          nuevasCantidades[i][j] = indiceViejo >= 0 ? cantidades[i][indiceViejo] || 0 : 0;
+        }
+      }
+
+      personas = [...newPersonas];
+      cantidades = nuevasCantidades;
+      actualizarResumenRapido();
+    }
+
+    function renderTabla() {
+      const header = document.getElementById("header");
+      const body = document.getElementById("body");
+
+      header.innerHTML = "<th>Variedad</th>";
+
+      personas.forEach((persona, index) => {
+        header.innerHTML += `
+          <th class="persona-header">
+            <div class="persona-header-wrap">
+              <span class="persona-nombre" title="${persona}">${persona}</span>
+              <button
+                type="button"
+                class="btn-delete-person"
+                onclick="eliminarPersona(${index})"
+                title="Eliminar persona"
+              >×</button>
+            </div>
+          </th>
+        `;
+      });
+
+      body.innerHTML = "";
+
+      variedades.forEach((item, row) => {
+        let fila = `
+          <tr>
+            <td>
+              <div class="variedad-cell">
+                <span class="variedad-nombre">${item.nombre}</span>
+                <span class="variedad-cat">${item.categoria}</span>
+              </div>
+            </td>`;
+
+        personas.forEach((_, col) => {
+          fila += `
+            <td>
+              <div class="counter">
+                <button type="button" onclick="cambiarCantidad(${row}, ${col}, -1, event)">-</button>
+                <span id="val-${row}-${col}">${cantidades[row][col] || 0}</span>
+                <button type="button" onclick="cambiarCantidad(${row}, ${col}, 1, event)">+</button>
+              </div>
+            </td>
+          `;
+        });
+
+        fila += `</tr>`;
+        body.innerHTML += fila;
+      });
+
+      actualizarResumenRapido();
+    }
+
+    function calcularTotalGeneral() {
+      let total = 0;
+      for (let i = 0; i < variedades.length; i++) {
+        for (let j = 0; j < personas.length; j++) {
+          total += cantidades[i][j] || 0;
+        }
+      }
+      return total;
+    }
+
+    function actualizarResumenRapido() {
+      document.getElementById("cardPersonas").textContent = personas.length;
+      document.getElementById("cardVariedades").textContent = variedades.length;
+      document.getElementById("cardTotal").textContent = calcularTotalGeneral();
+    }
+
+    function cambiarCantidad(row, col, delta, event) {
+      if (event) event.preventDefault();
+
+      cantidades[row][col] += delta;
+      if (cantidades[row][col] < 0) cantidades[row][col] = 0;
+
+      document.getElementById(`val-${row}-${col}`).textContent = cantidades[row][col];
+      ocultarPedidosGenerados();
+      actualizarResumenRapido();
+    }
+
+    function agregarPersona() {
+      const nombre = prompt("Nombre de la persona:");
+      if (!nombre || !nombre.trim()) return;
+
+      const nombreLimpio = nombre.trim();
+      const nuevasPersonas = [...personas, nombreLimpio];
+      reconstruirCantidadesConPersonas(nuevasPersonas);
+      ocultarPedidosGenerados();
+      renderTabla();
+    }
+
+    function eliminarPersona(index) {
+      if (personas.length === 1) {
+        alert("Debe quedar al menos una persona.");
+        return;
+      }
+
+      const nombre = personas[index];
+      const confirmar = confirm(`¿Eliminar a ${nombre}?`);
+      if (!confirmar) return;
+
+      const nuevasPersonas = personas.filter((_, i) => i !== index);
+      reconstruirCantidadesConPersonas(nuevasPersonas);
+      ocultarPedidosGenerados();
+      renderTabla();
+    }
+
+    function limpiarTodo() {
+      const confirmar = confirm("¿Querés borrar todas las cantidades cargadas?");
+      if (!confirmar) return;
+
+      for (let i = 0; i < variedades.length; i++) {
+        for (let j = 0; j < personas.length; j++) {
+          cantidades[i][j] = 0;
+        }
+      }
+
+      ocultarPedidosGenerados();
+      renderTabla();
+    }
+
+    function generarPedido() {
+      let textoWhatsapp = "Pedido Mi Gusto:\n\n";
+      let textoDetalle = "Detalle del pedido Mi Gusto:\n\n";
+      let totalGeneral = 0;
+      let variedadesConPedido = 0;
+
+      variedades.forEach((item, row) => {
+        let totalVariedad = 0;
+        let detallePersonas = [];
+
+        personas.forEach((persona, col) => {
+          const cant = cantidades[row][col];
+          totalVariedad += cant;
+
+          if (cant > 0) {
+            detallePersonas.push(`${persona}: ${cant}`);
+          }
+        });
+
+        if (totalVariedad > 0) {
+          textoWhatsapp += `${item.nombre}: ${totalVariedad}\n`;
+          textoDetalle += `${item.nombre}: ${totalVariedad}`;
+
+          if (detallePersonas.length > 0) {
+            textoDetalle += ` (${detallePersonas.join(", ")})`;
+          }
+
+          textoDetalle += "\n";
+          totalGeneral += totalVariedad;
+          variedadesConPedido++;
+        }
+      });
+
+      if (totalGeneral === 0) {
+        alert("Todavía no cargaste ninguna cantidad.");
+        return;
+      }
+
+      textoWhatsapp += `\nVariedades pedidas: ${variedadesConPedido}`;
+      textoWhatsapp += `\nTotal de empanadas: ${totalGeneral}`;
+
+      textoDetalle += `\nVariedades pedidas: ${variedadesConPedido}`;
+      textoDetalle += `\nTotal de empanadas: ${totalGeneral}`;
+
+      document.getElementById("resultadoWhatsapp").value = textoWhatsapp;
+      document.getElementById("resultadoDetalle").value = textoDetalle;
+      document.getElementById("totalVisible").textContent = `Total de empanadas: ${totalGeneral}`;
+      document.getElementById("btnCopiarWhatsapp").style.display = "inline-block";
+      document.getElementById("btnCopiarDetalle").style.display = "inline-block";
+      actualizarResumenRapido();
+    }
+
+    function ocultarPedidosGenerados() {
+      document.getElementById("resultadoWhatsapp").value = "";
+      document.getElementById("resultadoDetalle").value = "";
+      document.getElementById("totalVisible").textContent = "";
+      document.getElementById("btnCopiarWhatsapp").style.display = "none";
+      document.getElementById("btnCopiarDetalle").style.display = "none";
+    }
+
+    async function copiarPedidoWhatsapp() {
+      const texto = document.getElementById("resultadoWhatsapp").value.trim();
+      if (!texto) {
+        alert("Primero generá el pedido.");
+        return;
+      }
+
+      try {
+        await navigator.clipboard.writeText(texto);
+        alert("Pedido para WhatsApp copiado.");
+      } catch (error) {
+        alert("No se pudo copiar automáticamente. Copialo manualmente del cuadro.");
+      }
+    }
+
+    async function copiarDetalleConNombres() {
+      const texto = document.getElementById("resultadoDetalle").value.trim();
+      if (!texto) {
+        alert("Primero generá el pedido.");
+        return;
+      }
+
+      try {
+        await navigator.clipboard.writeText(texto);
+        alert("Detalle con nombres copiado.");
+      } catch (error) {
+        alert("No se pudo copiar automáticamente. Copialo manualmente del cuadro.");
+      }
+    }
+
+    let lastTouchEnd = 0;
+    document.addEventListener("touchend", function (event) {
+      const now = Date.now();
+      if (now - lastTouchEnd <= 300) {
+        event.preventDefault();
+      }
+      lastTouchEnd = now;
+    }, { passive: false });
+
+    inicializarDatos();
+    renderTabla();
+  </script>
+</body>
+</html>
